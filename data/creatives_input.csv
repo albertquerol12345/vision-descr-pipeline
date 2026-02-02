@@ -1,0 +1,3 @@
+image_id,image_path,source,product_id,likes,comments_count
+sample_001,images/sample_001.png,portfolio_demo,SKU-001,120,4
+sample_002,images/sample_002.png,portfolio_demo,SKU-002,98,2

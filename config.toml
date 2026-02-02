@@ -1,0 +1,17 @@
+[paths]
+images_root = "./images"
+input_csv = "./data/creatives_input.csv"
+output_csv = "./data/creatives_master.csv"
+log_file = "./logs/describe.log"
+
+[openai]
+model = "gpt-4o-mini"
+max_retries = 5
+retry_delay_seconds = 5
+
+[target]
+min_words = 80
+max_words = 100
+
+[batch]
+save_every = 5  # reescribe el CSV tras cada N filas nuevas
