@@ -1,0 +1,3 @@
+image_id,image_path,source,product_id,likes,comments_count,description_es
+sample_001,images/sample_001.png,portfolio_demo,SKU-001,120,4,"Foto de producto sobre fondo claro, composición centrada y buena iluminación. La imagen destaca el acabado y los detalles del producto, con un estilo limpio pensado para catálogo. Se perciben texturas suaves y un encuadre frontal que facilita la comparación entre variantes."
+sample_002,images/sample_002.png,portfolio_demo,SKU-002,98,2,"Imagen de producto con encuadre horizontal y foco nítido. Fondo neutro y luz uniforme para resaltar color y materiales. Estilo e‑commerce: sin elementos distractores, pensado para ficha y comparativa de atributos visuales."
