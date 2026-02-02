@@ -1,6 +1,6 @@
 # Vision Description Pipeline (Portfolio Copy)
 
-![Vision Description preview](assets/preview.png)
+![Vision Description preview](assets/preview.gif)
 
 Lightweight Python pipeline to generate consistent image descriptions via a vision API and consolidate them into a master CSV.
 
@@ -24,7 +24,7 @@ Replace with your own images and metadata.
 ## Expected output (sample)
 - Enriched CSV example: `data/creatives_output_sample.csv`
 - Preview:
-  ![Vision Description output](assets/preview.png)
+  ![Vision Description output](assets/preview.gif)
 
 ## Repo structure
 - `src/` CLI and API calls
