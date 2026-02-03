@@ -5,7 +5,7 @@ Pipeline ligero para generar descripciones consistentes (80-100 palabras) de cre
 ## Estructura
 
 ```
-vision_descr_pipeline/
+vision-descr-pipeline/
 ├── config.toml               # rutas y parámetros principales
 ├── .env.example              # plantilla para OPENAI_API_KEY
 ├── data/
@@ -23,7 +23,7 @@ vision_descr_pipeline/
 ## Instalación
 
 ```bash
-cd ~/vision_descr_pipeline
+cd vision-descr-pipeline
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -70,10 +70,11 @@ Muestra nº de filas, cuántas ya tienen descripción y la media de palabras/tok
 
 ## Estimación de coste/tokens (documental)
 
-- Objetivo por imagen: 80-100 palabras ≈ 60-80 tokens de salida (0.75 tokens/palabra).
-- Para 400 imágenes ⇒ ~24k-32k tokens de salida.
-- Modelos “mini” de OpenAI cuestan del orden de 0.15 $/1M tokens de salida ⇒ < 0.005 $ en salida.
-- Entrada (prompts + imagen) añade unos céntimos más, por lo que describir 400 imágenes debería costar **unos pocos céntimos** en total.
+**Nota:** las siguientes cifras son **estimaciones teóricas** y dependen del modelo y del contenido.
+
+- Objetivo por imagen: 80-100 palabras ≈ 60-80 tokens de salida (aprox.).
+- El coste total depende de la longitud final y del modelo.
+- Para estimar en tu caso, usa `python -m src.main resume-stats`.
 
 ## Notas
 
@@ -81,3 +82,4 @@ Muestra nº de filas, cuántas ya tienen descripción y la media de palabras/tok
 - Guardamos logs en `logs/describe.log` (rotación simple).
 - Ajusta `target_min_words` / `target_max_words` en el config para cambiar el tamaño del texto.
 - `creatives_master.csv` conserva todas las columnas originales más `description_es` y metadatos adicionales (`words_count`, `runtime_ms`).
+- El repo incluye 2 imágenes demo: `images/sample_001.png` y `images/sample_002.png`.

@@ -4,9 +4,9 @@
 ![OpenAI](https://img.shields.io/badge/API-OpenAI%20Vision-green.svg)
 ![Resumable](https://img.shields.io/badge/feature-resumable-orange.svg)
 
-**CLI pipeline to enrich image catalogs with AI-generated descriptions**
+**CLI para enriquecer catálogos de imágenes con descripciones en español**
 
-Transform product images into consistent, SEO-friendly descriptions (80-100 words) using OpenAI Vision API. Resumable processing with automatic retries and cost tracking.
+Genera descripciones consistentes (longitud objetivo configurable) y actualiza un CSV maestro. Procesamiento reanudable y logs básicos.
 
 ![Demo Preview](assets/preview.gif)
 
@@ -16,127 +16,88 @@ Transform product images into consistent, SEO-friendly descriptions (80-100 word
 
 ```bash
 git clone https://github.com/albertquerol12345/vision-descr-pipeline.git
-cd vision_descr_pipeline
+cd vision-descr-pipeline
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-# Configure
+# Configurar API
 cp .env.example .env
-# Edit .env and add: OPENAI_API_KEY=sk-...
+# Edita .env y añade: OPENAI_API_KEY=sk-...
 
-# Run
+# Ejecutar
 python -m src.main describe-all
 ```
 
 ---
 
-## 🎯 What It Does
+## 🎯 Qué hace
 
-**Before:** 400 product images with no descriptions  
-**After:** CSV with AI-generated descriptions, word counts, and processing metadata
+**Entrada:** `data/creatives_input.csv` con `image_id` y `image_path`  
+**Salida:** `data/creatives_master.csv` con `description_es`, conteo de palabras y metadatos
 
-| Feature | Benefit |
-|---------|---------|
-| **Resumable** | Stops/resumes without losing progress (saves every 5 rows) |
-| **Idempotent** | Won't reprocess images already described |
-| **Cost-controlled** | Targets 80-100 words to minimize API costs |
-| **Observable** | Logs + stats on tokens, runtime, errors |
+Características verificables:
+- **Reanudable** (`save_every = 5` en `config.toml`)
+- **Idempotente** (no re-procesa filas ya descritas)
+- **Logs** en `logs/describe.log`
 
 ---
 
-## 📊 Demo Scale & Costs
+## 📦 Demo incluida (real)
 
-| Metric | Value |
-|--------|-------|
-| Processing rate | ~60-120 images/hour (depends on API tier) |
-| Cost per image | ~$0.0001 (mini models) |
-| Cost for 400 images | **~$0.03-0.05 USD** |
-| Checkpoint frequency | Every 5 images (`save_every = 5`) |
+El repo incluye **2 imágenes de demo**:
+- `images/sample_001.png`
+- `images/sample_002.png`
 
----
+Y un CSV de entrada:
+- `data/creatives_input.csv`
 
-## 🏗️ Architecture
-
-```
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│   Input     │ →  │   OpenAI    │ →  │   Output    │ →  │  Checkpoint │
-│   Images    │    │    Vision   │    │    CSV      │    │   (auto)    │
-│   + CSV     │    │    API      │    │  Enriched   │    │  every 5    │
-└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
-      ↓                  ↓                  ↓
-  image_id        80-100 words       description_es
-  image_path      + metadata         words_count
-  source                             runtime_ms
-```
+Salida de ejemplo:
+- `data/creatives_output_sample.csv`
 
 ---
 
-## 📁 Project Structure
+## 🧩 Configuración (config.toml)
 
-```
-vision_descr_pipeline/
-├── config.toml               # Parameters: paths, model, word count
-├── .env                      # OPENAI_API_KEY
-├── data/
-│   ├── creatives_input.csv   # Your input data
-│   └── creatives_master.csv  # Output (auto-generated)
-├── images/                   # Source images
-├── src/
-│   ├── describe_images.py    # API logic
-│   └── main.py               # CLI entry point
-└── logs/
-    └── describe.log          # Processing log
-```
-
----
-
-## 🚀 Usage
-
-### 1. Prepare Input
-
-Create `data/creatives_input.csv`:
-```csv
-image_id,image_path,source
-IMG_001,images/product1.jpg,instagram
-IMG_002,images/product2.jpg,catalog
-```
-
-### 2. Configure
-
-Edit `config.toml`:
 ```toml
 [paths]
-input_csv = "data/creatives_input.csv"
-output_csv = "data/creatives_master.csv"
-images_folder = "images"
+images_root = "./images"
+input_csv = "./data/creatives_input.csv"
+output_csv = "./data/creatives_master.csv"
+log_file = "./logs/describe.log"
 
-[generation]
+[openai]
 model = "gpt-4o-mini"
-target_min_words = 80
-target_max_words = 100
+max_retries = 5
+retry_delay_seconds = 5
+
+[target]
+min_words = 80
+max_words = 100
+
+[batch]
 save_every = 5
 ```
 
-### 3. Run
+> **Nota:** la longitud objetivo es configurable y puede variar en función del prompt y el modelo.
+
+---
+
+## 🧪 CLI útil
 
 ```bash
+# Generar descripciones
 python -m src.main describe-all
+
+# Ver resumen del CSV maestro
+python -m src.main resume-stats
 ```
 
-Output:
-```
-Processing 400 images...
-✓ 345 already described (skipped)
-✓ 55 new descriptions generated
-  - 52 successful
-  - 3 errors (logged)
+---
 
-Output: data/creatives_master.csv
-Stats: avg 87 words/image, ~$0.04 total cost
-```
+## 📊 Costes
 
-### 4. Check Status
+El coste depende del modelo y del número de imágenes. Para estimar tokens y palabras:
 
 ```bash
 python -m src.main resume-stats
@@ -144,35 +105,31 @@ python -m src.main resume-stats
 
 ---
 
-## 🎓 Use Cases
+## 📁 Estructura
 
-- **E-commerce** — Auto-generate product descriptions at scale
-- **Fashion/Jewelry** — Consistent tone across thousands of items
-- **Social Media** — Batch-describe content for SEO
-- **Digital Asset Management** — Enrich image metadata
+```
+vision-descr-pipeline/
+├── config.toml
+├── data/
+│   ├── creatives_input.csv
+│   └── creatives_master.csv
+├── images/
+├── src/
+└── logs/
+```
 
 ---
 
-## 📚 Documentation
+## 📚 Documentación
 
-- [DEMO.md](DEMO.md) — Step-by-step walkthrough with sample data
-- [config.toml](config.toml) — All configuration options
-- [data/creatives_output_sample.csv](data/creatives_output_sample.csv) — Example output
+- [DEMO.md](DEMO.md) — guía paso a paso
+- [data/creatives_output_sample.csv](data/creatives_output_sample.csv) — output demo
+- [config.toml](config.toml) — configuración completa
 
 ---
 
 ## 🛠️ Tech Stack
 
-**API:** OpenAI Vision (GPT-4o-mini / GPT-4o)  
-**Data:** Pandas · CSV · TOML config  
-**Resilience:** Tenacity (retries) · Rotating logs  
-**CLI:** argparse · tqdm progress bars
-
----
-
-## 💡 Pro Tips
-
-1. **Start small** — Test with 10 images first to tune your prompt
-2. **Use mini models** — 90% cheaper, sufficient for most descriptions
-3. **Monitor costs** — Check `resume-stats` to estimate total spend
-4. **Resume safely** — Ctrl+C anytime, re-run continues where it left off
+**API:** OpenAI Vision  
+**Data:** Pandas · CSV · TOML  
+**CLI:** argparse
